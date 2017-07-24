@@ -102,3 +102,15 @@ ENV/
 /site
 
 # End of https://www.gitignore.io/api/python
+
+# Start of custom defined ignore file
+
+# Development use database
+db.sqlite3
+
+# Local Development & Production Setting
+lms/settings/local.py
+lms/settings/productions.py
+
+# All migrations is no need in VCS
+migrations/
