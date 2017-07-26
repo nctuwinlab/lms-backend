@@ -4,7 +4,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>{% block title %}無線網際網路實驗室{% endblock title %}</title>
+<title>{% block title %} {{SITE_NAME}} {% endblock title %}</title>
 <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 </head>
 
@@ -12,7 +12,7 @@
 <nav class="navbar navbar-default navbar-static-top" role="navigation">
   <div class="container">
     <div class="navbar-header">
-        <a class="navbar-brand" href="{% url 'home' %}">無線網際網路實驗室</a>
+        <a class="navbar-brand" href="{% url 'home' %}"> {{SITE_NAME}}</a>
     </div>
   </div>
 </nav>
