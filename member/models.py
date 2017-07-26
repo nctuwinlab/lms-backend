@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Grade(models.Model):
     name = models.CharField(max_length=5, default='使用者年級')
@@ -12,11 +13,9 @@ class Position(models.Model):
     def __str__(self):
         return self.name
 
-class Member(models.Model):
-    # Username & Password used in login auth.
-    # Password will be hashed in SHA-256 with salt
-    username = models.CharField(max_length=20)
-    password = models.CharField(max_length=64)
+class Profile(models.Model):
+    # Using built-in auth model
+    user = models.OneToOneField(User)
 
     # User's Public information
     chinese_name = models.CharField(max_length=10)

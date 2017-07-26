@@ -1,5 +1,5 @@
 from django.db import models
-from member.models import Member
+from member.models import Profile
 
 class Store(models.Model):
     name = models.CharField(max_length=10, default='店家名稱')
@@ -19,7 +19,7 @@ class Food(models.Model):
 
 class Order(models.Model):
     date = models.DateField()
-    member = models.ForeignKey(Member, related_name='order')
+    member = models.ForeignKey(Profile, related_name='order')
     store = models.ForeignKey(Store)
     food = models.ForeignKey(Food)
     rank = models.IntegerField()

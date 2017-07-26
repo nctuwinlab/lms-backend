@@ -1,10 +1,19 @@
 from django.contrib import admin
-from .models import Grade, Position, Member
+from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
+from django.contrib.auth.models import User
+from member.models import Grade, Position, Profile
 
+class ProfileInline(admin.StackedInline):
+    model = Profile
+    extra = 1
+
+class UserAdmin(AuthUserAdmin):
+    inlines = (ProfileInline, )
+
+admin.site.register(Grade)
 admin.site.register(Position)
-admin.site.register(Member)
 
-@admin.register(Grade)
-class GradeAdmin(admin.ModelAdmin):
-    list_display = ('name', )
+admin.site.unregister(User)
+admin.site.register(User, UserAdmin)
+
 
