@@ -1,0 +1,20 @@
+sudo: false
+
+language: python
+
+python:
+    - "3.6"
+env:
+    - export DJANGO_SETTINGS_MODULE=lms.settings.local
+
+install:
+    - pip install -r requirements.txt
+    - pip install python-coveralls flake8
+
+script:
+    - coverage run manage.py test
+    - flake8 --exclude=venv,**/settings/*,**/migrations/*,manage.py
+
+affter_success:
+    - coverage report
+    - coveralls
