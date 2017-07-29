@@ -1,6 +1,7 @@
 from django.db import models
 from member.models import Profile
 
+
 class Store(models.Model):
     name = models.CharField(max_length=10, default='店家名稱')
     phone = models.CharField(max_length=10, default='')
@@ -9,6 +10,7 @@ class Store(models.Model):
     def __str__(self):
         return self.name
 
+
 class Food(models.Model):
     store = models.ForeignKey('Store', related_name='menu')
     name = models.CharField(max_length=10)
@@ -16,6 +18,7 @@ class Food(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Order(models.Model):
     date = models.DateField()

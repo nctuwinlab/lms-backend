@@ -1,17 +1,20 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Grade(models.Model):
     name = models.CharField(max_length=5, default='使用者年級')
 
     def __str__(self):
         return self.name
 
+
 class Position(models.Model):
     name = models.CharField(max_length=5, default='使用者職位')
 
     def __str__(self):
         return self.name
+
 
 class Profile(models.Model):
     # Using built-in auth model

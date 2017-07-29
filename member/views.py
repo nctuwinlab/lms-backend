@@ -3,6 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 
+
 def user_login(request):
     if request.user.is_authenticated():
         return HttpResponseRedirect('/member/')
@@ -20,9 +21,11 @@ def user_login(request):
 
     return render(request, 'login.html')
 
+
 @login_required
 def member_home(request):
     return HttpResponse('Youre Login')
+
 
 @login_required
 def user_logout(request):
