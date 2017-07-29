@@ -9,7 +9,6 @@ env:
 
 install:
     - pip install -r requirements.txt
-    - pip install python-coveralls flake8
 
 script:
     - coverage run manage.py test
