@@ -11,7 +11,7 @@ class Page(models.Model):
 
 
 class Article(models.Model):
-    type = models.CharField(max_length=2, blank=False, default='一般')
+    category = models.CharField(max_length=2, blank=False, default='一般')
     subject = models.CharField(max_length=50)
     author = models.ForeignKey(Profile)
     datetime = models.DateTimeField(blank=False)
