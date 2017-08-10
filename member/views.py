@@ -2,24 +2,48 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+from member.models import Profile
+from member.serializers import ProfileSerializer
 
 
-def user_login(request):
-    if request.user.is_authenticated():
-        return HttpResponseRedirect('/member/')
+class MemberDetail(APIView):
 
-    if request.method == 'POST':
-        username = request.POST.get('username', '')
-        password = request.POST.get('password', '')
-        user = authenticate(username=username, password=password)
+    queryset = Profile.objects.all()
 
-        if user:
-            login(request, user)
-            return HttpResponseRedirect('/member/')
-        else:
-            return render(request, 'login.html', {'msg': 'Login Failed'})
+    def get(self, request, pk, format="None"):
+        try:
+            profile = Profile.objects.get(pk=pk)
+        except Profile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-    return render(request, 'login.html')
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data)
+
+    def post(self, request, pk, format="None"):
+        serializer = ProfileSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, pk, format="None"):
+        try:
+            profile = Profile.objects.get(pk=pk)
+        except Profile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @login_required
