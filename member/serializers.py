@@ -4,54 +4,95 @@ from rest_framework import serializers
 from .models import Profile, Grade, Position
 
 
-class UserSerializer(serializers.Serializer):
-    profile = serializers.PrimaryKeyRelatedField(
-                queryset=Profile.objects.all()
-            )
+class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'profile')
+        fields = ['username', 'email', 'first_name', 'last_name']
 
 
-class ProfileSerializer(serializers.Serializer):
+class ProfileSerializer(serializers.ModelSerializer):
+
+    user = UserSerializer()
 
     # User's Public information
-    chinese_name = serializers.CharField(required=True, max_length=10)
-    english_name = serializers.CharField(max_length=30, blank=True)
-    grade = models.ForeignKey('Grade', blank=True)
-    position = models.ForeignKey('Position', blank=True)
-    github = models.CharField(max_length=20, blank=True)
+    grade = serializers.PrimaryKeyRelatedField(queryset=Grade.objects.all())
+    position = serializers.PrimaryKeyRelatedField(queryset=Position.objects.all())
+    github = serializers.CharField(max_length=20, allow_blank=True)
 
     # User's Personal information (but visible by others)
-    student_id = serializers.CharField(max_length=7, blank=True)
-    email = serializers.EmailField()
-    birth = serializers.DateField(blank=True)
+    student_id = serializers.CharField(max_length=7, allow_blank=True)
+    birth = serializers.DateField()
     mobile = serializers.CharField(max_length=10)
-    website = serializers.URLField(blank=True)
+    website = serializers.URLField(allow_blank=True)
 
     # User's Private information (only visible by advisor)
-    address = serializers.CharField(max_length=40, blank=True)
-    telphone = serializers.CharField(max_length=10, blank=True)
+    address = serializers.CharField(max_length=40, allow_blank=True)
+    telphone = serializers.CharField(max_length=10, allow_blank=True)
+
+    def __unicode__(self):
+        return self.chinese_name
+
+    def create(self, validated_data):
+        username = validated_data.get('user').get('username')
+
+        user = User.objects.create_user(
+            username=username,
+            password=self.generate_password(username),
+            email=validated_data.get('user').get('email'),
+            first_name=validated_data.get('user').get('first_name'),
+            last_name=validated_data.get('user').get('last_name'),
+        )
+
+        validated_data.pop('user')
+
+        profile = Profile.objects.create(user=user, **validated_data)
+        return profile
+
+    def update(self, instance, validated_data):
+
+        instance.grade = validated_data.get('grade', instance.grade)
+        instance.position = validated_data.get('position', instance.position)
+        instance.github = validated_data.get('github', instance.github)
+        instance.mobile = validated_data.get('mobile', instance.mobile)
+        instance.website = validated_data.get('website', instance.website)
+        instance.address = validated_data.get('address', instance.address)
+        instance.telphone = validated_data.get('telphone', instance.telphone)
+        instance.save()
+        return instance
+
+    def generate_password(self, username):
+        return username[::-1]
+
+    class Meta:
+        model = Profile
+        fields = ['user', 'grade', 'position', 'github', 'student_id',
+                  'birth', 'mobile', 'website', 'address', 'telphone']
 
 
-class GradeSerializer(serializers.Serializer):
+class GradeSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=5, default='使用者年級')
     profiles = serializers.PrimaryKeyRelatedField(
                 many=True, read_only=True
             )
+
+    def __unicode__(self):
+        return self.name
 
     class Meta:
         model = Grade
         fields = ('name', 'profiles')
 
 
-class Position(models.Model):
+class Position(serializers.ModelSerializer):
     name = serializers.CharField(max_length=5, default='使用者職位')
     profiles = serializers.PrimaryKeyRelatedField(
                 many=True, read_only=True
             )
 
+    def __unicode__(self):
+        return self.name
+
     class Meta:
         model = Position
-        fields = ('name', 'profiles')
+        fields = ['name', 'profiles']

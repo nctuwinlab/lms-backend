@@ -21,15 +21,12 @@ class Profile(models.Model):
     user = models.OneToOneField(User)
 
     # User's Public information
-    chinese_name = models.CharField(max_length=10)
-    english_name = models.CharField(max_length=30, blank=True)
     grade = models.ForeignKey('Grade', blank=True)
     position = models.ForeignKey('Position', blank=True)
     github = models.CharField(max_length=20, blank=True)
 
     # User's Personal information (but visible by others)
     student_id = models.CharField(max_length=7, blank=True)
-    email = models.EmailField()
     birth = models.DateField(blank=True)
     mobile = models.CharField(max_length=10)
     website = models.URLField(blank=True)
