@@ -32,7 +32,7 @@ class Profile(models.Model):
     website = models.URLField(blank=True)
 
     # User's Private information (only visible by advisor)
-    address = models.CharField(max_length=40, blank=True)
+    address = models.CharField(max_length=100, blank=True)
     telphone = models.CharField(max_length=10, blank=True)
 
     def __str__(self):

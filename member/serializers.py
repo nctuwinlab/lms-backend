@@ -27,7 +27,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     website = serializers.URLField(allow_blank=True)
 
     # User's Private information (only visible by advisor)
-    address = serializers.CharField(max_length=40, allow_blank=True)
+    address = serializers.CharField(max_length=100, allow_blank=True)
     telphone = serializers.CharField(max_length=10, allow_blank=True)
 
     def __unicode__(self):
