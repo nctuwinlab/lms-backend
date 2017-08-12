@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APITestCase
 
 from member.models import Profile, Position, Grade
-from member.views import MemberProfile
 
 
 class MemberManageTest(APITestCase):

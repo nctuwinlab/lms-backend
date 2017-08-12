@@ -17,7 +17,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     # User's Public information
     grade = serializers.PrimaryKeyRelatedField(queryset=Grade.objects.all())
-    position = serializers.PrimaryKeyRelatedField(queryset=Position.objects.all())
+    position = serializers.PrimaryKeyRelatedField(
+                            queryset=Position.objects.all())
     github = serializers.CharField(max_length=20, allow_blank=True)
 
     # User's Personal information (but visible by others)
