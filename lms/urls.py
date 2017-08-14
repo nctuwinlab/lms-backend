@@ -17,7 +17,11 @@ from django.conf.urls import url, include
 from django.contrib import admin
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    # applications urls
     url(r'^', include('home.urls')),
     url(r'^member/', include('member.urls')),
+    # plugin authentication urls
+    url(r'^api-auth/', include('rest_framework.urls')),
+    # database admin page urls
+    url(r'^admin/', admin.site.urls),
 ]
