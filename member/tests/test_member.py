@@ -110,3 +110,18 @@ class MemberManageTest(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data, self.superuserdata)
+
+    def test_UpdateUserProfile(self):
+        self.client.login(**self.super_credential)
+
+        response = self.client.get('/member/profile/',
+                                   data=self.superuserdata, format='json')
+
+        self.assertEqual(response.data, self.superuserdata)
+
+        self.superuserdata['website'] = 'https://winlab.tw'
+        response = self.client.put('/member/profile/',
+                                   data=self.superuserdata, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.superuserdata)
