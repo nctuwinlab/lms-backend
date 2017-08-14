@@ -36,4 +36,4 @@ class Profile(models.Model):
     telphone = models.CharField(max_length=10, blank=True)
 
     def __str__(self):
-        return self.chinese_name
+        return self.user.first_name

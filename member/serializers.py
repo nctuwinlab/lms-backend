@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
+from django.contrib.auth.validators import UnicodeUsernameValidator
 
 from rest_framework import serializers
+
 from .models import Profile, Grade, Position
 
 
@@ -9,6 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name']
+        extra_kwargs = {
+            'username': {
+                'validators': [UnicodeUsernameValidator()],
+            }
+        }
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -52,6 +59,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
+        # User can only change following attributes
         instance.grade = validated_data.get('grade', instance.grade)
         instance.position = validated_data.get('position', instance.position)
         instance.github = validated_data.get('github', instance.github)
@@ -60,6 +68,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         instance.address = validated_data.get('address', instance.address)
         instance.telphone = validated_data.get('telphone', instance.telphone)
         instance.save()
+
         return instance
 
     def generate_password(self, username):
