@@ -1,34 +1,127 @@
-from django.test import TestCase
 from django.contrib.auth.models import User
-from django.core.urlresolvers import resolve
 
-from member.models import Profile
-from member.views import user_login
+from rest_framework.test import APIClient, APITestCase
+
+from member.models import Profile, Position, Grade
 
 
-class MemberLoginTest(TestCase):
+class MemberManageTest(APITestCase):
 
     def setUp(self):
-        self.username = 'lms'
-        self.email = 'lms@win'
-        self.password = 'password'
-        self.user = User.objects.create_user(
-            self.username, self.email, self.password
+        # Super User's Login Crendential
+        self.super_credential = {
+            'username': 'lms',
+            'password': 'password'
+        }
+
+        # Regular User's Login Credential
+        self.regular_credential = {
+            'username': 'test',
+            'password': 'tset'
+        }
+
+        # Regular User's Data
+        self.userdata = {
+            "user": {
+                "username": "test",
+                "email": "test@winlab.tw",
+                "first_name": "Win",
+                "last_name": "Lab"
+            },
+            "grade": 1,
+            "position": 1,
+            "github": "nctuwinlab",
+            "student_id": "0123456",
+            "birth": "2017-07-31",
+            "mobile": "0987654321",
+            "website": "https://win.cs.nctu.edu.tw",
+            "address": "No.1001, Daxue Rd., Hsinchu City 300, Taiwan",
+            "telphone": ""
+        }
+
+        # Super User's Data
+        self.superuserdata = {
+            "user": {
+                "username": "lms",
+                "email": "lms@winlab.tw",
+                "first_name": "Administrator",
+                "last_name": "WinLab"
+            },
+            "grade": 1,
+            "position": 1,
+            "github": "",
+            "student_id": "0000000",
+            "birth": "2017-07-30",
+            "mobile": "0987654321",
+            "website": "https://win.cs.nctu.edu.tw",
+            "address": "No.1001, Daxue Rd., Hsinchu City 300, Taiwan",
+            "telphone": ""
+        }
+
+        # Create Position
+        position = Position.objects.create(
+            name='Network Administrator'
         )
-        self.user.Profile = Profile()
-        self.user.save()
+        position.save()
 
-    def test_resolve(self):
-        match = resolve('/member/login/')
-        self.assertEqual(match.func, user_login)
+        # Create Grade
+        grade = Grade.objects.create(
+            name='Freshman'
+        )
+        grade.save()
 
-    def test_AccessMemberBeforeLogin(self):
-        self.client.logout()
-        response = self.client.get('/member/')
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/member/login/?next=/member/')
+        # Create a SuperUser
+        superuser = User.objects.create_superuser(
+            email='lms@winlab.tw',
+            first_name='Administrator',
+            last_name='WinLab',
+            **self.super_credential
+        )
 
-    def test_AccessMemberAfterLogin(self):
-        self.client.login(username=self.username, password=self.password)
-        response = self.client.get('/member/')
+        superuserdata = self.superuserdata.copy()
+
+        for key in ['user', 'grade', 'position']:
+            superuserdata.pop(key)
+
+        superuser.profile = Profile(
+            user=superuser, grade=grade, position=position, **superuserdata
+        )
+
+        superuser.save()
+        superuser.profile.save()
+
+        # Initialize client
+        self.client = APIClient()
+
+    def test_CreateRegularUser(self):
+        self.client.login(**self.super_credential)
+
+        # Create Regular User
+        response = self.client.post('/member/profile/',
+                                    data=self.userdata, format='json')
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data, self.userdata)
+
+    def test_GetUserProfile(self):
+        self.client.login(**self.super_credential)
+
+        response = self.client.get('/member/profile/')
+
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.superuserdata)
+
+    def test_UpdateUserProfile(self):
+        self.client.login(**self.super_credential)
+
+        response = self.client.get('/member/profile/',
+                                   data=self.superuserdata, format='json')
+
+        self.assertEqual(response.data, self.superuserdata)
+
+        self.superuserdata['website'] = 'https://winlab.tw'
+        response = self.client.put('/member/profile/',
+                                   data=self.superuserdata, format='json')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, self.superuserdata)

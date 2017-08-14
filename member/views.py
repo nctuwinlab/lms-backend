@@ -1,33 +1,49 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+from member.models import Profile
+from member.serializers import ProfileSerializer
+from member.permissions import ProfilePermission
 
 
-def user_login(request):
-    if request.user.is_authenticated():
-        return HttpResponseRedirect('/member/')
+class MemberProfile(APIView):
 
-    if request.method == 'POST':
-        username = request.POST.get('username', '')
-        password = request.POST.get('password', '')
-        user = authenticate(username=username, password=password)
+    queryset = Profile.objects.all()
+    permission_classes = (IsAuthenticated, ProfilePermission, )
 
-        if user:
-            login(request, user)
-            return HttpResponseRedirect('/member/')
-        else:
-            return render(request, 'login.html', {'msg': 'Login Failed'})
+    def get(self, request, format="None"):
+        try:
+            profile = Profile.objects.get(user=request.user)
+            self.check_object_permissions(request, profile)
+        except Profile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-    return render(request, 'login.html')
+        serializer = ProfileSerializer(profile)
 
+        return Response(serializer.data)
 
-@login_required
-def member_home(request):
-    return HttpResponse('Youre Login')
+    def post(self, request, format="None"):
+        serializer = ProfileSerializer(data=request.data)
 
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-@login_required
-def user_logout(request):
-    logout(request)
-    return HttpResponseRedirect('/member/login/')
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request, format="None"):
+
+        try:
+            profile = Profile.objects.get(user=request.user)
+        except Profile.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        serializer = ProfileSerializer(profile, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
